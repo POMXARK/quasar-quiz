@@ -1,14 +1,16 @@
 <template>
   <div class="question-container">
-    <div class="question">{{ questionText ?? fakeQuestionText }}</div>
+    <div class="question">
+      {{ questionText ?? fakeQuestionText }}
+    </div>
     <div v-for="(option, index) in fakeColorOptions" :key="index" class="answer-option">
       <input
-        type="checkbox"
-        :id="'option' + index"
-        :value="option.value"
+        :id="`option${index}`"
         v-model="selectedOptions"
+        type="checkbox"
+        :value="option.value"
       />
-      <label :for="'option' + index">{{ option.label }}</label>
+      <label :for="`option${index}`">{{ option.label }}</label>
     </div>
   </div>
 </template>
@@ -20,23 +22,23 @@ import { ref } from 'vue';
 const props = defineProps({
   questionText: {
     type: String,
-    required: true
+    required: true,
   },
   options: {
     type: Array,
     required: true,
-    default: () => []
-  }
+    default: () => [],
+  },
 });
 
-const fakeQuestionText="Какой ваш любимый цвет?"
+const fakeQuestionText = 'Какой ваш любимый цвет?';
 
 // Определяем варианты ответа
 const fakeColorOptions = [
   { value: 'red', label: 'Красный' },
   { value: 'blue', label: 'Синий' },
   { value: 'green', label: 'Зеленый' },
-  { value: 'yellow', label: 'Желтый' }
+  { value: 'yellow', label: 'Желтый' },
 ];
 
 // Реактивная переменная для хранения выбранных опций

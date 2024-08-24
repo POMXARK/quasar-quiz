@@ -1,9 +1,9 @@
 <template>
   <q-page class="flex flex-center">
-    <Auth/>
+    <Auth />
   </q-page>
 </template>
 
 <script setup>
-import Auth from "components/Auth.vue";
+import Auth from 'components/UserAuth.vue';
 </script>

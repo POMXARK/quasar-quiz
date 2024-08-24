@@ -10,11 +10,10 @@
 </template>
 
 <script setup>
-import { shallowRef, ref, onMounted } from 'vue';
+import { shallowRef, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import Register from 'components/Register.vue';
-import Login from 'components/Login.vue';
-import QuestionComponent from 'components/QuestionComponent.vue'; // Импортируем компонент вопросов
+import Register from 'components/UserRegister.vue';
+import Login from 'components/UserLogin.vue';
 
 // Хук для получения объекта маршрутизации
 const router = useRouter();

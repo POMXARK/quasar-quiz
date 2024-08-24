@@ -14,8 +14,10 @@
       :rules="[val => !!val || 'Password is required']"
     />
     <q-btn label="Login" type="submit" color="primary" />
-    <q-btn label="Register" @click="$emit('switch-to-register')" flat />
-    <p v-if="errorMessage" class="text-negative">{{ errorMessage }}</p>
+    <q-btn label="Register" flat @click="$emit('switch-to-register')" />
+    <p v-if="errorMessage" class="text-negative">
+      {{ errorMessage }}
+    </p>
   </q-form>
 </template>
 

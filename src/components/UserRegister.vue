@@ -21,8 +21,10 @@
       :rules="[val => !!val || 'Password is required']"
     />
     <q-btn label="Register" type="submit" color="primary" />
-    <q-btn label="Login" @click="$emit('switch-to-login')" flat />
-    <p v-if="errorMessage" class="text-negative">{{ errorMessage }}</p>
+    <q-btn label="Login" flat @click="$emit('switch-to-login')" />
+    <p v-if="errorMessage" class="text-negative">
+      {{ errorMessage }}
+    </p>
   </q-form>
 </template>
 
@@ -38,7 +40,9 @@ const errorMessage = ref('');
 // Функция для регистрации пользователя
 async function registerUser() {
   try {
-    const result = await registerUserInDB({ name: name.value, email: email.value, password: password.value });
+    const result = await registerUserInDB(
+      { name: name.value, email: email.value, password: password.value },
+    );
     if (result.success) {
       name.value = '';
       email.value = '';
