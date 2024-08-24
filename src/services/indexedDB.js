@@ -11,12 +11,10 @@ const USERS_STORE = 'users';
 async function initDB() {
   return openDB(DB_NAME, DB_VERSION, {
     upgrade(db) {
-      // Создание хранилища вопросов, если оно еще не существует
       if (!db.objectStoreNames.contains(QUESTIONS_STORE)) {
         db.createObjectStore(QUESTIONS_STORE, { keyPath: 'id', autoIncrement: true });
       }
 
-      // Создание хранилища пользователей, если оно еще не существует
       if (!db.objectStoreNames.contains(USERS_STORE)) {
         const userStore = db.createObjectStore(USERS_STORE, { keyPath: 'email' });
         userStore.createIndex('email', 'email', { unique: true });
@@ -25,7 +23,7 @@ async function initDB() {
   });
 }
 
-// Функция для преобразования данных в формат, поддерживаемый IndexedDB
+// Преобразование данных для IndexedDB
 function sanitizeQuestion(question) {
   return {
     ...question,
@@ -36,7 +34,7 @@ function sanitizeQuestion(question) {
   };
 }
 
-// Функции для работы с вопросами
+// Функция для добавления нового вопроса в IndexedDB
 export async function addQuestion(question) {
   try {
     const db = await initDB();
@@ -49,7 +47,7 @@ export async function addQuestion(question) {
   }
 }
 
-// Получение списка всех вопросов
+// Функция для получения всех вопросов из IndexedDB
 export async function getQuestions() {
   try {
     const db = await initDB();
@@ -60,6 +58,7 @@ export async function getQuestions() {
   }
 }
 
+// Функция для обновления данных вопроса в IndexedDB
 export async function updateQuestion(question) {
   try {
     const db = await initDB();
@@ -72,6 +71,7 @@ export async function updateQuestion(question) {
   }
 }
 
+// Функция для удаления вопроса из IndexedDB по ID
 export async function deleteQuestion(id) {
   try {
     const db = await initDB();
@@ -80,6 +80,28 @@ export async function deleteQuestion(id) {
   } catch (error) {
     console.error('Ошибка при удалении вопроса:', error);
     return { success: false, message: 'Не удалось удалить вопрос.' };
+  }
+}
+
+// Функция для сброса флагов всех вопросов
+export async function resetQuestionFlags() {
+  try {
+    const db = await initDB();
+    const questions = await db.getAll(QUESTIONS_STORE);
+    const tx = db.transaction(QUESTIONS_STORE, 'readwrite');
+    const store = tx.objectStore(QUESTIONS_STORE);
+
+    questions.forEach(question => {
+      if (question.isAnswered) {
+        store.put({ ...question, isAnswered: false });
+      }
+    });
+
+    await tx.done;
+    return { success: true };
+  } catch (error) {
+    console.error('Ошибка при сбросе флагов вопросов:', error);
+    return { success: false, message: 'Не удалось сбросить флаги вопросов.' };
   }
 }
 

@@ -30,29 +30,36 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { getQuestions } from '../services/indexedDB'; // Подключите ваши функции для работы с IndexedDB
+import { getQuestions, updateQuestion, resetQuestionFlags } from '../services/indexedDB';
 
 const currentQuestion = ref(null);
 const shuffledAnswers = ref([]);
 const selectedAnswers = ref([]);
 const result = ref(null);
 
-// Функция для получения случайного вопроса
+// Функция для получения и сортировки вопросов по проценту правильных ответов
 async function fetchRandomQuestion() {
-  const questions = await getQuestions();
-  if (questions.length === 0) return;
+  let questions = await getQuestions();
 
-  // Выбор случайного вопроса
-  const randomIndex = Math.floor(Math.random() * questions.length);
-  currentQuestion.value = questions[randomIndex];
+  // Сортируем вопросы по убыванию процента правильных ответов
+  questions = questions.sort((a, b) => (b.correctPercentage || 0) - (a.correctPercentage || 0));
 
-  // Перемешивание ответов
+  const unansweredQuestions = questions.filter(q => !q.isAnswered);
+
+  if (unansweredQuestions.length === 0) {
+    currentQuestion.value = null;
+    await resetQuestionFlags(); // Сбрасываем флаги, если нет новых вопросов
+    return;
+  }
+
+  const randomIndex = Math.floor(Math.random() * unansweredQuestions.length);
+  currentQuestion.value = unansweredQuestions[randomIndex];
+
   shuffledAnswers.value = shuffleArray(currentQuestion.value.answers.map((a, index) => ({
     label: a.text,
     value: index
   })));
 
-  // Сброс выбранных ответов и результатов
   selectedAnswers.value = [];
   result.value = null;
 }
@@ -62,7 +69,7 @@ function shuffleArray(array) {
   return array.sort(() => Math.random() - 0.5);
 }
 
-// Функция для вычисления класса CSS опций
+// Функция для вычисления CSS класса опций
 function optionClass(option) {
   if (!currentQuestion.value) return '';
 
@@ -71,6 +78,7 @@ function optionClass(option) {
   const isCorrect = answer.isCorrect;
 
   if (result.value) {
+    // Устанавливаем классы в зависимости от состояния ответа
     if (isSelected && isCorrect) {
       return 'q-mb-sm bg-green text-white'; // Правильный выбранный ответ
     } else if (isSelected && !isCorrect) {
@@ -85,26 +93,45 @@ function optionClass(option) {
   }
 }
 
-// Функция для отображения результатов
-function showResults() {
+// Функция для отображения результатов и обновления данных вопроса
+async function showResults() {
   if (!currentQuestion.value) return;
 
   const correctAnswers = currentQuestion.value.answers.filter(a => a.isCorrect);
+  const totalCorrectAnswers = correctAnswers.length;
+  const totalAnswers = currentQuestion.value.answers.length;
+
+  // Получаем все выбранные ответы
   const selectedAnswerIndices = selectedAnswers.value;
   const selectedAnswersData = selectedAnswerIndices.map(index => currentQuestion.value.answers[index]);
 
+  // Подсчитываем правильные и неправильные выбранные ответы
   const correctSelectedAnswers = selectedAnswersData.filter(a => a.isCorrect);
   const incorrectSelectedAnswers = selectedAnswersData.filter(a => !a.isCorrect);
-
-  // Учитываем только выбранные ответы
   const totalSelectedAnswers = selectedAnswersData.length;
-  const correctPercentage = totalSelectedAnswers === 0 ? 0 : (correctSelectedAnswers.length / totalSelectedAnswers) * 100;
+
+  let correctPercentage;
+
+  if (totalSelectedAnswers === totalAnswers) {
+    // Если выбраны все варианты, корректируем процент за неверные ответы
+    const incorrectPercentage = (incorrectSelectedAnswers.length / totalAnswers) * 100;
+    correctPercentage = 100 - incorrectPercentage;
+  } else {
+    // Если не все варианты выбраны
+    correctPercentage = totalCorrectAnswers === 0 ? 0 : (correctSelectedAnswers.length / totalCorrectAnswers) * 100;
+  }
+
+  // Убедимся, что процент не отрицательный
+  correctPercentage = Math.max(correctPercentage, 0);
 
   result.value = {
     correctAnswers,
     incorrectAnswers: incorrectSelectedAnswers,
     correctPercentage: Math.round(correctPercentage)
   };
+
+  // Обновление статуса вопроса и процента правильных ответов в IndexedDB
+  await updateQuestion({ ...currentQuestion.value, isAnswered: true, correctPercentage });
 }
 
 // Автоматическая загрузка случайного вопроса при монтировании компонента
@@ -114,7 +141,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Добавьте свои стили для выделения правильных и неправильных ответов */
 .bg-green {
   background-color: #28a745;
 }
