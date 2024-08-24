@@ -2,79 +2,125 @@ import { openDB } from 'idb';
 
 const DB_NAME = 'my-database';
 const DB_VERSION = 1;
-const STORE_NAME = 'users';
 
-// Функция для регистрации пользователя в IndexedDB
+// Хранилища для вопросов и пользователей
+const QUESTIONS_STORE = 'questions';
+const USERS_STORE = 'users';
+
+// Функция для инициализации базы данных
+async function initDB() {
+  return openDB(DB_NAME, DB_VERSION, {
+    upgrade(db) {
+      // Создание хранилища вопросов, если оно еще не существует
+      if (!db.objectStoreNames.contains(QUESTIONS_STORE)) {
+        db.createObjectStore(QUESTIONS_STORE, { keyPath: 'id', autoIncrement: true });
+      }
+
+      // Создание хранилища пользователей, если оно еще не существует
+      if (!db.objectStoreNames.contains(USERS_STORE)) {
+        const userStore = db.createObjectStore(USERS_STORE, { keyPath: 'email' });
+        userStore.createIndex('email', 'email', { unique: true });
+      }
+    },
+  });
+}
+
+// Функция для преобразования данных в формат, поддерживаемый IndexedDB
+function sanitizeQuestion(question) {
+  return {
+    ...question,
+    answers: question.answers.map(answer => ({
+      text: String(answer.text),
+      isCorrect: Boolean(answer.isCorrect),
+    })),
+  };
+}
+
+// Функции для работы с вопросами
+export async function addQuestion(question) {
+  try {
+    const db = await initDB();
+    const sanitizedQuestion = sanitizeQuestion(question);
+    await db.add(QUESTIONS_STORE, sanitizedQuestion);
+    return { success: true };
+  } catch (error) {
+    console.error('Ошибка при добавлении вопроса:', error);
+    return { success: false, message: 'Не удалось добавить вопрос.' };
+  }
+}
+
+export async function getQuestions() {
+  try {
+    const db = await initDB();
+    return await db.getAll(QUESTIONS_STORE);
+  } catch (error) {
+    console.error('Ошибка при получении вопросов:', error);
+    return [];
+  }
+}
+
+export async function updateQuestion(question) {
+  try {
+    const db = await initDB();
+    const sanitizedQuestion = sanitizeQuestion(question);
+    await db.put(QUESTIONS_STORE, sanitizedQuestion);
+    return { success: true };
+  } catch (error) {
+    console.error('Ошибка при обновлении вопроса:', error);
+    return { success: false, message: 'Не удалось обновить вопрос.' };
+  }
+}
+
+export async function deleteQuestion(id) {
+  try {
+    const db = await initDB();
+    await db.delete(QUESTIONS_STORE, id);
+    return { success: true };
+  } catch (error) {
+    console.error('Ошибка при удалении вопроса:', error);
+    return { success: false, message: 'Не удалось удалить вопрос.' };
+  }
+}
+
+// Функции для работы с пользователями
 export async function registerUserInDB(user) {
   try {
-    // Открытие базы данных
-    const db = await openDB(DB_NAME, DB_VERSION, {
-      upgrade(innerDb) {
-        // Создание хранилища пользователей, если оно еще не существует
-        if (!innerDb.objectStoreNames.contains(STORE_NAME)) {
-          const userStore = innerDb.createObjectStore(STORE_NAME, { keyPath: 'email' });
-          // Создание индекса по email, чтобы гарантировать уникальность
-          userStore.createIndex('email', 'email', { unique: true });
-        }
-      },
-    });
-
-    // Создание транзакции для добавления пользователя
-    const tx = db.transaction(STORE_NAME, 'readwrite');
-    const store = tx.objectStore(STORE_NAME);
+    const db = await initDB();
+    const tx = db.transaction(USERS_STORE, 'readwrite');
+    const store = tx.objectStore(USERS_STORE);
     const index = store.index('email');
 
-    // Проверяем, существует ли уже пользователь с таким email
     const existingUser = await index.get(user.email);
 
     if (existingUser) {
-      // Возвращаем ошибку, если пользователь с таким email уже существует
-      return { success: false, message: 'User with this email already exists.' };
+      return { success: false, message: 'Пользователь с таким email уже существует.' };
     }
 
-    // Добавляем нового пользователя
     await store.add(user);
-
-    // Завершаем транзакцию
     await tx.done;
 
     return { success: true };
   } catch (error) {
-    console.error('Error interacting with IndexedDB:', error);
-    return { success: false, message: 'Failed to interact with IndexedDB.' };
+    console.error('Ошибка при регистрации пользователя:', error);
+    return { success: false, message: 'Не удалось зарегистрировать пользователя.' };
   }
 }
 
-// Функция для авторизации пользователя в IndexedDB
 export async function loginUserInDB(identifier, password) {
   try {
-    // Открытие базы данных
-    const db = await openDB(DB_NAME, DB_VERSION, {
-      upgrade(db) {
-        // Создание хранилища пользователей, если оно еще не существует
-        if (!db.objectStoreNames.contains(STORE_NAME)) {
-          db.createObjectStore(STORE_NAME, { keyPath: 'email' });
-        }
-      },
-    });
+    const db = await initDB();
+    const tx = db.transaction(USERS_STORE, 'readonly');
+    const store = tx.objectStore(USERS_STORE);
 
-    // Создание транзакции для чтения данных пользователя
-    const tx = db.transaction(STORE_NAME, 'readonly');
-    const store = tx.objectStore(STORE_NAME);
-
-    // Получение всех записей из хранилища
     const allUsers = await store.getAll();
-
-    // Поиск пользователя по email или username
     const user = allUsers.find((user) => user.email === identifier || user.username === identifier);
 
-    // Проверяем, соответствует ли введённый пароль сохраненному в базе данных
     if (user && user.password === password) {
       return { success: true };
     }
-    return { success: false, message: 'Invalid email or password.' };
+    return { success: false, message: 'Неверный email или пароль.' };
   } catch (error) {
-    console.error('Error interacting with IndexedDB:', error);
-    return { success: false, message: 'Failed to interact with IndexedDB.' };
+    console.error('Ошибка при авторизации пользователя:', error);
+    return { success: false, message: 'Не удалось авторизовать пользователя.' };
   }
 }
