@@ -1,3 +1,6 @@
+import Auth from "components/Auth.vue";
+import QuestionComponent from "components/QuestionComponent.vue";
+
 const routes = [
   {
     path: '/',
@@ -5,6 +8,11 @@ const routes = [
     children: [
       { path: '', component: () => import('pages/IndexPage.vue') }
     ]
+  },
+  {
+    path: '/questions',
+    name: 'Questions',
+    component: QuestionComponent // Компонент вопросов
   },
 
   // Always leave this as last one,
