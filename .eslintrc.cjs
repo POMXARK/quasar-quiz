@@ -6,11 +6,13 @@ module.exports = {
 
   parserOptions: {
     ecmaVersion: 2021, // Allows for the parsing of modern ECMAScript features
+    sourceType: 'module',
   },
 
   env: {
     node: true,
-    browser: true
+    browser: true,
+    es2021: true,
   },
 
   // Rules order is important, please avoid shuffling them
@@ -27,20 +29,36 @@ module.exports = {
 
     // https://github.com/prettier/eslint-config-prettier#installation
     // usage with Prettier, provided by 'eslint-config-prettier'.
-    'prettier'
+    // 'prettier',
+    'eslint:recommended',
+    'plugin:vue/vue3-recommended',
+    '@vue/eslint-config-airbnb',
+    'plugin:quasar/recommended',
   ],
 
   plugins: [
     // https://eslint.vuejs.org/user-guide/#why-doesn-t-it-work-on-vue-files
     // required to lint *.vue files
     'vue',
-    
+    'quasar',
     // https://github.com/typescript-eslint/typescript-eslint/issues/389#issuecomment-509292674
     // Prettier has not been included as plugin to avoid performance impact
     // add it as an extension for your IDE
-    
-  ],
 
+  ],
+  settings: {
+    'import/resolver': {
+      alias: {
+        map: [
+          ['components', './src/components'],
+          ['layouts', './src/layouts'],
+          ['pages', './src/pages'],
+          // добавьте другие алиасы по мере необходимости
+        ],
+        extensions: ['.js', '.jsx', '.ts', '.tsx', '.vue'],
+      },
+    },
+  },
   globals: {
     ga: 'readonly', // Google Analytics
     cordova: 'readonly',
@@ -56,7 +74,7 @@ module.exports = {
 
   // add your custom rules here
   rules: {
-    
+
     'prefer-promise-reject-errors': 'off',
 
     // allow debugger during development only

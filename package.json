@@ -22,11 +22,13 @@
   },
   "devDependencies": {
     "@quasar/app-vite": "^1.9.0",
+    "@vue/eslint-config-airbnb": "^8.0.0",
     "autoprefixer": "^10.4.2",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^8.1.0",
+    "eslint-import-resolver-alias": "^1.1.2",
     "eslint-plugin-quasar": "^1.1.0",
-    "eslint-plugin-vue": "^9.0.0",
+    "eslint-plugin-vue": "^9.27.0",
     "postcss": "^8.4.14",
     "prettier": "^2.5.1",
     "vite-plugin-checker": "^0.7.1"
