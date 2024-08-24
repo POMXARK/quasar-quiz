@@ -35,7 +35,7 @@ const router = useRouter(); // Используем useRouter для досту�
 onMounted(() => {
   const isAuthenticated = localStorage.getItem('isAuthenticated');
   if (isAuthenticated) {
-    router.push('/questions'); // Перенаправляем на компонент вопросов, если уже авторизован
+    router.push('/random-question'); // Перенаправляем на компонент вопросов, если уже авторизован
   }
 });
 
@@ -48,7 +48,7 @@ async function loginUser() {
       password.value = '';
       errorMessage.value = '';
       localStorage.setItem('isAuthenticated', 'true'); // Сохраняем состояние авторизации
-      router.push('/questions'); // Перенаправляем на компонент вопросов после успешной авторизации
+      router.push('/random-question'); // Перенаправляем на компонент вопросов после успешной авторизации
     } else {
       errorMessage.value = result.message;
     }

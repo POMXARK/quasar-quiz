@@ -1,10 +1,7 @@
 <template>
   <q-item
     clickable
-    tag="a"
-    target="_blank"
-    rel="noopener noreferrer"
-    :href="props.link"
+    @click="navigate"
   >
     <q-item-section
       v-if="props.icon"
@@ -23,6 +20,8 @@
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router';
+
 defineOptions({
   name: 'EssentialLink',
 });
@@ -48,4 +47,16 @@ const props = defineProps({
     default: '',
   },
 });
+
+const router = useRouter();
+
+function navigate() {
+  if (props.link.startsWith('http')) {
+    // Для внешних ссылок
+    window.open(props.link, '_blank', 'noopener noreferrer');
+  } else {
+    // Для внутренних ссылок
+    router.push(props.link);
+  }
+}
 </script>

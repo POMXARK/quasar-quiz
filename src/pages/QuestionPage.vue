@@ -1,9 +1,9 @@
 <template>
   <q-page class="flex flex-center">
-    <Auth />
+    <RandomQuestion/>
   </q-page>
 </template>
 
 <script setup>
-import Auth from 'components/UserAuth.vue';
+import RandomQuestion from "components/RandomQuestion.vue";
 </script>

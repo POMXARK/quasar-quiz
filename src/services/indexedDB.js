@@ -49,6 +49,7 @@ export async function addQuestion(question) {
   }
 }
 
+// Получение списка всех вопросов
 export async function getQuestions() {
   try {
     const db = await initDB();

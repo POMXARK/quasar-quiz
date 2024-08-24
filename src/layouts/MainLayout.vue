@@ -25,16 +25,23 @@
       bordered
     >
       <q-list>
-        <q-item-label
-          header
-        >
+        <q-item-label header>
           Essential Links
         </q-item-label>
 
+        <!-- Обновленный список с одной ссылкой на панель администратора -->
         <EssentialLink
-          v-for="link in linksList"
-          :key="link.title"
-          v-bind="link"
+          :title="questionLink.title"
+          :caption="questionLink.caption"
+          :icon="questionLink.icon"
+          :link="questionLink.link"
+        />
+
+        <EssentialLink
+          :title="adminLink.title"
+          :caption="adminLink.caption"
+          :icon="adminLink.icon"
+          :link="adminLink.link"
         />
       </q-list>
     </q-drawer>
@@ -53,50 +60,22 @@ defineOptions({
   name: 'MainLayout',
 });
 
-const linksList = [
-  {
-    title: 'Docs',
-    caption: 'quasar.dev',
-    icon: 'school',
-    link: 'https://quasar.dev',
-  },
-  {
-    title: 'Github',
-    caption: 'github.com/quasarframework',
-    icon: 'code',
-    link: 'https://github.com/quasarframework',
-  },
-  {
-    title: 'Discord Chat Channel',
-    caption: 'chat.quasar.dev',
-    icon: 'chat',
-    link: 'https://chat.quasar.dev',
-  },
-  {
-    title: 'Forum',
-    caption: 'forum.quasar.dev',
-    icon: 'record_voice_over',
-    link: 'https://forum.quasar.dev',
-  },
-  {
-    title: 'Twitter',
-    caption: '@quasarframework',
-    icon: 'rss_feed',
-    link: 'https://twitter.quasar.dev',
-  },
-  {
-    title: 'Facebook',
-    caption: '@QuasarFramework',
-    icon: 'public',
-    link: 'https://facebook.quasar.dev',
-  },
-  {
-    title: 'Quasar Awesome',
-    caption: 'Community Quasar projects',
-    icon: 'favorite',
-    link: 'https://awesome.quasar.dev',
-  },
-];
+// Объект с информацией о ссылке на панель администратора
+const adminLink = {
+  title: 'Admin Page', // Обновите название на нужное вам
+  caption: 'Manage your application',
+  icon: 'admin_panel_settings',
+  link: '/admin-page', // Обновите путь на нужный вам
+};
+
+// Объект с информацией о ссылке на викторину
+const questionLink = {
+  title: 'Questions', // Название ссылки
+  caption: 'View and manage questions',
+  icon: 'question_answer', // Иконка для вопросов
+  link: '/random-question', // Путь к странице вопросов
+};
+
 
 const leftDrawerOpen = ref(false);
 

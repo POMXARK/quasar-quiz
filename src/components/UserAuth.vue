@@ -37,7 +37,7 @@ async function checkAuthStatus() {
 
   if (isLoggedIn) {
     // Если пользователь авторизован, перенаправляем на компонент вопросов
-    router.push('/questions'); // Замените '/questions' на путь к вашему компоненту вопросов
+    router.push('/random-question'); // Замените '/questions' на путь к вашему компоненту вопросов
   } else {
     // Если пользователь не авторизован, отображаем компонент авторизации
     currentComponent.value = Login;
