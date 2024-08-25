@@ -1,28 +1,32 @@
 <template>
   <div>
     <!-- Кнопка для создания нового вопроса -->
-    <q-btn @click="goToCreateQuestion" color="primary" class="q-mb-md" icon="add_circle" label="Создать вопрос" />
+    <q-btn color="primary" class="q-mb-md" icon="add_circle" label="Создать вопрос" @click="goToCreateQuestion" />
     <q-list bordered>
       <!-- Список вопросов, отображаемый с помощью цикла -->
       <q-item v-for="question in questions" :key="question.id" class="question-item">
         <q-item-section>
           <!-- Отображение текста вопроса -->
-          <div class="question-text">{{ question.text }}</div>
+          <div class="question-text">
+            {{ question.text }}
+          </div>
           <div class="answers-list">
             <!-- Список вариантов ответов, отображаемый с помощью вложенного цикла -->
             <q-item v-for="(answer, index) in question.answers" :key="index" class="answer-item">
               <q-item-section>
                 <!-- Отображение текста варианта ответа с условной классовой привязкой для правильного ответа -->
-                <div :class="{ 'correct-answer': answer.isCorrect }">{{ answer.text }}</div>
+                <div :class="{ 'correct-answer': answer.isCorrect }">
+                  {{ answer.text }}
+                </div>
               </q-item-section>
             </q-item>
           </div>
         </q-item-section>
         <q-item-section side>
           <!-- Кнопка для редактирования вопроса -->
-          <q-btn @click="handleEdit(question.id)" color="primary" icon="edit" />
+          <q-btn color="primary" icon="edit" @click="handleEdit(question.id)" />
           <!-- Кнопка для удаления вопроса -->
-          <q-btn @click="handleDelete(question.id)" color="negative" icon="delete" />
+          <q-btn color="negative" icon="delete" @click="handleDelete(question.id)" />
         </q-item-section>
       </q-item>
     </q-list>
@@ -30,9 +34,9 @@
 </template>
 
 <script setup>
-import {ref, onMounted} from 'vue';
-import {getQuestions, deleteQuestion} from '../services/indexedDB';
-import {useRouter} from 'vue-router';
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { getQuestions, deleteQuestion } from '../../services/question';
 
 const questions = ref([]); // Состояние для хранения списка вопросов
 const router = useRouter(); // Хук маршрутизатора для навигации
@@ -59,13 +63,13 @@ const handleDelete = async (id) => {
 // Функция для редактирования вопроса по ID
 const handleEdit = (id) => {
   // Перенаправляем на страницу редактирования вопроса с указанным ID
-  router.push({name: 'EditQuestion', params: {id}});
+  router.push({ name: 'EditQuestion', params: { id } });
 };
 
 // Функция для перехода на страницу создания нового вопроса
 const goToCreateQuestion = () => {
   // Перенаправляем на страницу создания вопроса
-  router.push({name: 'CreateQuestion'});
+  router.push({ name: 'CreateQuestion' });
 };
 
 // Загружаем вопросы при монтировании компонента

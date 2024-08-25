@@ -1,12 +1,12 @@
 <template>
   <q-page>
-    <AdminPanel/>
+    <AdminPanel />
   </q-page>
 </template>
 
 <script setup>
 import { defineComponent } from 'vue';
-import AdminPanel from "components/AdminPanel.vue";
+import AdminPanel from 'components/AdminPanel.vue';
 
 defineComponent({
   name: 'AdminPage',

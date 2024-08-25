@@ -5,5 +5,5 @@
 </template>
 
 <script setup>
-import Auth from 'components/UserAuth.vue';
+import Auth from 'components/User/UserAuth.vue';
 </script>

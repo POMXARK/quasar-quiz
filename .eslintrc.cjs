@@ -30,10 +30,10 @@ module.exports = {
     // https://github.com/prettier/eslint-config-prettier#installation
     // usage with Prettier, provided by 'eslint-config-prettier'.
     // 'prettier',
-    'eslint:recommended',
-    'plugin:vue/vue3-recommended',
-    '@vue/eslint-config-airbnb',
-    'plugin:quasar/recommended',
+      'eslint:recommended',
+      'plugin:vue/vue3-recommended',
+      '@vue/eslint-config-airbnb',
+      'plugin:quasar/recommended',
   ],
 
   plugins: [

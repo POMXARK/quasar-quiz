@@ -30,7 +30,7 @@
 
 <script setup>
 import { ref } from 'vue';
-import { registerUserInDB } from '../services/indexedDB'; // Импортируем функцию для работы с IndexedDB
+import { registerUserInDB } from '../../services/user'; // Импортируем функцию для работы с IndexedDB
 
 const name = ref('');
 const email = ref('');
@@ -41,7 +41,7 @@ const errorMessage = ref('');
 async function registerUser() {
   try {
     const result = await registerUserInDB(
-      { name: name.value, email: email.value, password: password.value },
+      { username: name.value, email: email.value, password: password.value },
     );
     if (result.success) {
       name.value = '';

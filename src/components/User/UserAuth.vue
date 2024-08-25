@@ -12,8 +12,8 @@
 <script setup>
 import { shallowRef, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import Register from 'components/UserRegister.vue';
-import Login from 'components/UserLogin.vue';
+import Register from 'components/User/UserRegister.vue';
+import Login from 'components/User/UserLogin.vue';
 
 // Хук для получения объекта маршрутизации
 const router = useRouter();

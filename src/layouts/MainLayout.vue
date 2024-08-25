@@ -43,6 +43,14 @@
           :icon="adminLink.icon"
           :link="adminLink.link"
         />
+
+        <!-- Добавленная ссылка на список категорий -->
+        <EssentialLink
+          :title="categoryLink.title"
+          :caption="categoryLink.caption"
+          :icon="categoryLink.icon"
+          :link="categoryLink.link"
+        />
       </q-list>
     </q-drawer>
 
@@ -76,6 +84,13 @@ const questionLink = {
   link: '/random-question', // Путь к странице вопросов
 };
 
+// Новый объект с информацией о ссылке на список категорий
+const categoryLink = {
+  title: 'Categories', // Название ссылки на категории
+  caption: 'View and manage categories',
+  icon: 'category', // Иконка для категорий
+  link: '/categories', // Путь к странице списка категорий
+};
 
 const leftDrawerOpen = ref(false);
 

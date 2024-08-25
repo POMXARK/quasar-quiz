@@ -1,9 +1,9 @@
 <template>
   <q-page class="flex flex-center">
-    <RandomQuestion/>
+    <RandomQuestion />
   </q-page>
 </template>
 
 <script setup>
-import RandomQuestion from "components/RandomQuestion.vue";
+import RandomQuestion from 'components/Question/RandomQuestion.vue';
 </script>

@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- Кнопка "Назад" -->
-    <q-btn @click="goBack" color="secondary" class="q-mb-md" icon="arrow_back" label="Назад" />
+    <q-btn color="secondary" class="q-mb-md" icon="arrow_back" label="Назад" @click="goBack" />
 
     <q-form @submit.prevent="handleSubmit">
       <q-input v-model="question.text" label="Текст вопроса" />
@@ -9,7 +9,7 @@
       <div class="q-mt-md">
         <q-input v-model="newAnswerText" label="Новый вариант ответа" />
         <q-checkbox v-model="newAnswerIsCorrect" label="Указать как правильный ответ" />
-        <q-btn @click="addAnswer" color="primary" icon="add" />
+        <q-btn color="primary" icon="add" @click="addAnswer" />
       </div>
 
       <q-list class="q-mt-md">
@@ -19,20 +19,22 @@
             <q-checkbox v-model="answer.isCorrect" label="Правильный ответ" />
           </q-item-section>
           <q-item-section side>
-            <q-btn @click="removeAnswer(index)" color="negative" icon="delete" />
+            <q-btn color="negative" icon="delete" @click="removeAnswer(index)" />
           </q-item-section>
         </q-item>
       </q-list>
 
-      <q-btn type="submit" color="primary" class="q-mt-md" icon="save">Сохранить</q-btn>
+      <q-btn type="submit" color="primary" class="q-mt-md" icon="save">
+        Сохранить
+      </q-btn>
     </q-form>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { getQuestions, updateQuestion } from '../services/indexedDB';
 import { useRoute, useRouter } from 'vue-router';
+import { getQuestions, updateQuestion } from '../../services/question';
 
 const route = useRoute();
 const router = useRouter();
@@ -42,10 +44,18 @@ const newAnswerIsCorrect = ref(false);
 
 // Функция для загрузки вопроса по ID
 const loadQuestion = async (id) => {
-  // Получаем все вопросы из базы данных
-  const allQuestions = await getQuestions();
-  // Ищем и устанавливаем вопрос с указанным ID
-  question.value = allQuestions.find(q => q.id === id);
+  try {
+    const allQuestions = await getQuestions();
+    question.value = allQuestions.find((q) => q.id === id);
+    console.log('Loaded question:', question.value); // Отладочный вывод
+  } catch (error) {
+    console.error('Ошибка при загрузке вопроса:', error);
+  }
+};
+
+// Метод для возвращения на предыдущую страницу
+const goBack = () => {
+  router.back();
 };
 
 // Функция для обработки отправки формы
@@ -54,7 +64,7 @@ const handleSubmit = async () => {
     // Обновляем вопрос в базе данных
     await updateQuestion(question.value);
     // Перенаправляем на список вопросов после успешного сохранения
-    router.push({ name: 'QuestionList' });
+    goBack();
   } catch (error) {
     // Ловим и выводим ошибку в консоль, если что-то пошло не так
     console.error('Ошибка при обновлении вопроса:', error);
@@ -79,12 +89,6 @@ const addAnswer = () => {
 const removeAnswer = (index) => {
   // Удаляем ответ из списка по указанному индексу
   question.value.answers.splice(index, 1);
-};
-
-// Функция для возврата на список вопросов
-const goBack = () => {
-  // Перенаправляем на список вопросов
-  router.push({ name: 'QuestionList' });
 };
 
 // Загрузка вопроса при монтировании компонента

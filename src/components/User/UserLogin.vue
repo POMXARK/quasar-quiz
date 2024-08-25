@@ -23,23 +23,21 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router'; // Импортируем useRouter для работы с роутером
-import { loginUserInDB } from '../services/indexedDB'; // Импортируем функцию для работы с IndexedDB
+import { useRouter } from 'vue-router';
+import { loginUserInDB } from '../../services/user';
 
 const login = ref('');
 const password = ref('');
 const errorMessage = ref('');
-const router = useRouter(); // Используем useRouter для доступа к роутеру
+const router = useRouter();
 
-// Проверка авторизации при монтировании компонента
 onMounted(() => {
   const isAuthenticated = localStorage.getItem('isAuthenticated');
   if (isAuthenticated) {
-    router.push('/random-question'); // Перенаправляем на компонент вопросов, если уже авторизован
+    router.push('/random-question');
   }
 });
 
-// Функция для авторизации пользователя
 async function loginUser() {
   try {
     const result = await loginUserInDB(login.value, password.value);
@@ -47,8 +45,8 @@ async function loginUser() {
       login.value = '';
       password.value = '';
       errorMessage.value = '';
-      localStorage.setItem('isAuthenticated', 'true'); // Сохраняем состояние авторизации
-      router.push('/random-question'); // Перенаправляем на компонент вопросов после успешной авторизации
+      localStorage.setItem('isAuthenticated', 'true');
+      router.push('/random-question');
     } else {
       errorMessage.value = result.message;
     }
