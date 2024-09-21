@@ -6,7 +6,7 @@
 
 <script setup>
 import { defineComponent } from 'vue';
-import AdminPanel from 'components/AdminPanel.vue';
+import AdminPanel from 'components/Admin/AdminPanel.vue';
 
 defineComponent({
   name: 'AdminPage',

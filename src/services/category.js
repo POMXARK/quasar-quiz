@@ -1,41 +1,24 @@
-import { openDB } from 'idb';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import Dexie from 'dexie';
 
-const DB_NAME = 'my-database'; // Имя базы данных
-const DB_VERSION = 4; // Версия базы данных
-const CATEGORIES_STORE = 'categories'; // Имя хранилища категорий
+const db = new Dexie('my-database', {
+  version: 4,
+});
+
+db.version(4).stores({
+  categories: '++id, name, questions',
+});
 
 // Функция для инициализации базы данных
 async function initDB() {
-  try {
-    return await openDB(DB_NAME, DB_VERSION, {
-      upgrade(db, oldVersion) {
-        if (oldVersion < DB_VERSION) {
-          if (!db.objectStoreNames.contains(CATEGORIES_STORE)) {
-            const categoryStore = db.createObjectStore(CATEGORIES_STORE, { keyPath: 'id', autoIncrement: true });
-            categoryStore.createIndex('name', 'name', { unique: true }); // Индекс по имени категории
-          }
-        }
-      },
-    });
-  } catch (error) {
-    console.error('Ошибка при инициализации базы данных:', error);
-    throw new Error('Не удалось инициализировать базу данных.');
-  }
+  await db.open();
 }
 
 // Функция для получения всех категорий
 export async function getCategories() {
   try {
-    const db = await initDB();
-    // Проверяем, существует ли хранилище категорий
-    if (!db.objectStoreNames.contains(CATEGORIES_STORE)) {
-      throw new Error(`Хранилище ${CATEGORIES_STORE} не найдено`);
-    }
-    const transaction = db.transaction(CATEGORIES_STORE, 'readonly'); // Открываем транзакцию на чтение
-    const store = transaction.objectStore(CATEGORIES_STORE); // Получаем доступ к хранилищу категорий
-    const categories = await store.getAll(); // Получаем все категории
-
-    // Преобразуем строку JSON обратно в массив
+    await initDB();
+    const categories = await db.categories.toArray();
     return categories.map((category) => ({
       ...category,
       questions: JSON.parse(category.questions),
@@ -49,21 +32,12 @@ export async function getCategories() {
 // Функция для добавления новой категории
 export async function addCategory(category) {
   try {
-    const db = await initDB();
-    if (!db.objectStoreNames.contains(CATEGORIES_STORE)) {
-      throw new Error(`Хранилище ${CATEGORIES_STORE} не найдено`);
-    }
-    const transaction = db.transaction(CATEGORIES_STORE, 'readwrite'); // Открываем транзакцию на запись
-    const store = transaction.objectStore(CATEGORIES_STORE); // Получаем доступ к хранилищу категорий
-
-    // Преобразуем массив вопросов в строку JSON
+    await initDB();
     const categoryToAdd = {
       ...category,
       questions: JSON.stringify(category.questions),
     };
-
-    await store.add(categoryToAdd); // Добавляем категорию в хранилище
-    await transaction.done; // Дожидаемся завершения транзакции
+    await db.categories.add(categoryToAdd);
     return { success: true };
   } catch (error) {
     console.error('Ошибка при добавлении категории:', error);
@@ -74,21 +48,12 @@ export async function addCategory(category) {
 // Функция для обновления существующей категории
 export async function updateCategory(category) {
   try {
-    const db = await initDB();
-    if (!db.objectStoreNames.contains(CATEGORIES_STORE)) {
-      throw new Error(`Хранилище ${CATEGORIES_STORE} не найдено`);
-    }
-    const transaction = db.transaction(CATEGORIES_STORE, 'readwrite'); // Открываем транзакцию на запись
-    const store = transaction.objectStore(CATEGORIES_STORE); // Получаем доступ к хранилищу категорий
-
-    // Преобразуем массив вопросов в строку JSON
+    await initDB();
     const categoryToUpdate = {
       ...category,
       questions: JSON.stringify(category.questions),
     };
-
-    await store.put(categoryToUpdate); // Обновляем категорию в хранилище
-    await transaction.done; // Дожидаемся завершения транзакции
+    await db.categories.put(categoryToUpdate);
     return { success: true };
   } catch (error) {
     console.error('Ошибка при обновлении категории:', error);
@@ -99,14 +64,8 @@ export async function updateCategory(category) {
 // Функция для удаления категории по идентификатору
 export async function deleteCategory(id) {
   try {
-    const db = await initDB();
-    if (!db.objectStoreNames.contains(CATEGORIES_STORE)) {
-      throw new Error(`Хранилище ${CATEGORIES_STORE} не найдено`);
-    }
-    const transaction = db.transaction(CATEGORIES_STORE, 'readwrite'); // Открываем транзакцию на запись
-    const store = transaction.objectStore(CATEGORIES_STORE); // Получаем доступ к хранилищу категорий
-    await store.delete(id); // Удаляем категорию по идентификатору
-    await transaction.done; // Дожидаемся завершения транзакции
+    await initDB();
+    await db.categories.delete(id);
     return { success: true };
   } catch (error) {
     console.error('Ошибка при удалении категории:', error);
@@ -117,16 +76,9 @@ export async function deleteCategory(id) {
 // Функция для получения категории по идентификатору
 export async function getCategoryById(id) {
   try {
-    const db = await initDB();
-    if (!db.objectStoreNames.contains(CATEGORIES_STORE)) {
-      throw new Error(`Хранилище ${CATEGORIES_STORE} не найдено`);
-    }
-    const transaction = db.transaction(CATEGORIES_STORE, 'readonly'); // Открываем транзакцию на чтение
-    const store = transaction.objectStore(CATEGORIES_STORE); // Получаем доступ к хранилищу категорий
-    const category = await store.get(id); // Получаем категорию по идентификатору
-
+    await initDB();
+    const category = await db.categories.get(id);
     if (category) {
-      // Преобразуем строку JSON обратно в массив
       category.questions = JSON.parse(category.questions);
     }
     return category;
