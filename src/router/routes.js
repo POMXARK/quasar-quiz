@@ -7,6 +7,7 @@ import AdminPage from 'pages/AdminPage.vue';
 import ListCategory from 'components/Category/ListCategory.vue';
 import CreateCategory from 'components/Category/CreateCategory.vue';
 import EditCategory from 'components/Category/EditCategory.vue';
+import ImportCSV from 'components/Admin/ImportCSV.vue';
 
 const routes = [
   {
@@ -34,6 +35,12 @@ const routes = [
         path: 'random-question',
         name: 'RandomQuestion',
         component: RandomQuestion,
+        meta: { requiresAuth: true }, // Добавляем мета-данные
+      },
+      {
+        path: 'csv',
+        name: 'ImportCSV',
+        component: ImportCSV,
         meta: { requiresAuth: true }, // Добавляем мета-данные
       },
       {
